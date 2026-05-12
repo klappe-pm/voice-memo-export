@@ -1,0 +1,484 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  SNIPPET: Bordered Blocks (Extended)                                          ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  DESCRIPTION:                                                                 ║
+║  Adds customizable borders to code blocks, dataview, tables, blockquotes,    ║
+║  callouts, bases, tasks, and math blocks.                                    ║
+║                                                                               ║
+║  CONFIGURATION:                                                               ║
+║  1. Set DEFAULT values - these apply to ALL block types                       ║
+║  2. Set OVERRIDES for specific block types - leave blank to use default      ║
+║     Use "initial" as value to explicitly inherit default                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+*/
+
+:root {
+  
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  /* DEFAULTS - Applied to all block types unless overridden                     */
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  
+  --default-border-width:   1.5px;
+  --default-border-style:   solid;      /* solid, dashed, dotted, double, groove, ridge, inset, outset */
+  --default-border-color:   #6b6b6b;
+  --default-border-radius:  6px;
+  --default-max-width:      600px;
+  --default-padding:        10px 15px;
+  
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  /* OVERRIDES - Set specific values per block type (leave blank to use default) */
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  
+  /* CODE BLOCKS (fenced code, inline code) */
+  --code-border-width:      ;
+  --code-border-style:      ;
+  --code-border-color:      ;
+  --code-border-radius:     ;
+  --code-max-width:         ;
+  --code-padding:           ;
+  
+  /* INLINE CODE */
+  --inline-code-border-width:   ;
+  --inline-code-border-style:   ;
+  --inline-code-border-color:   ;
+  --inline-code-border-radius:  4px;    /* smaller radius for inline */
+  --inline-code-padding:        1px 4px;
+  
+  /* DATAVIEW BLOCKS */
+  --dataview-border-width:  ;
+  --dataview-border-style:  ;
+  --dataview-border-color:  ;
+  --dataview-border-radius: ;
+  --dataview-max-width:     ;
+  --dataview-padding:       ;
+  
+  /* TASKS PLUGIN */
+  --tasks-border-width:     ;
+  --tasks-border-style:     ;
+  --tasks-border-color:     ;
+  --tasks-border-radius:    ;
+  --tasks-max-width:        ;
+  --tasks-padding:          ;
+  
+  /* TABLES */
+  --table-border-width:     ;
+  --table-border-style:     ;
+  --table-border-color:     ;
+  --table-border-radius:    ;
+  --table-max-width:        ;
+  
+  /* BLOCKQUOTES */
+  --quote-border-width:     ;
+  --quote-border-style:     ;
+  --quote-border-color:     ;
+  --quote-border-radius:    ;
+  --quote-max-width:        ;
+  --quote-padding:          ;
+  
+  /* CALLOUTS */
+  --callout-border-width:   ;
+  --callout-border-style:   ;
+  --callout-border-color:   ;
+  --callout-border-radius:  ;
+  --callout-max-width:      ;
+  
+  /* BASES */
+  --bases-border-width:     ;
+  --bases-border-style:     ;
+  --bases-border-color:     ;
+  --bases-border-radius:    ;
+  --bases-max-width:        ;
+  --bases-padding:          ;
+  
+  /* MATH BLOCKS */
+  --math-border-width:      ;
+  --math-border-style:      ;
+  --math-border-color:      ;
+  --math-border-radius:     ;
+  --math-max-width:         ;
+  --math-padding:           8px 12px;
+
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  /* RESOLVED VALUES - DO NOT EDIT (combines defaults with overrides)            */
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  
+  /* Code */
+  --r-code-width:   var(--code-border-width,   var(--default-border-width));
+  --r-code-style:   var(--code-border-style,   var(--default-border-style));
+  --r-code-color:   var(--code-border-color,   var(--default-border-color));
+  --r-code-radius:  var(--code-border-radius,  var(--default-border-radius));
+  --r-code-max-w:   var(--code-max-width,      var(--default-max-width));
+  --r-code-pad:     var(--code-padding,        var(--default-padding));
+  
+  /* Inline Code */
+  --r-icode-width:  var(--inline-code-border-width,  var(--default-border-width));
+  --r-icode-style:  var(--inline-code-border-style,  var(--default-border-style));
+  --r-icode-color:  var(--inline-code-border-color,  var(--default-border-color));
+  --r-icode-radius: var(--inline-code-border-radius, 4px);
+  --r-icode-pad:    var(--inline-code-padding,       1px 4px);
+  
+  /* Dataview */
+  --r-dv-width:     var(--dataview-border-width,  var(--default-border-width));
+  --r-dv-style:     var(--dataview-border-style,  var(--default-border-style));
+  --r-dv-color:     var(--dataview-border-color,  var(--default-border-color));
+  --r-dv-radius:    var(--dataview-border-radius, var(--default-border-radius));
+  --r-dv-max-w:     var(--dataview-max-width,     var(--default-max-width));
+  --r-dv-pad:       var(--dataview-padding,       var(--default-padding));
+  
+  /* Tasks */
+  --r-task-width:   var(--tasks-border-width,  var(--default-border-width));
+  --r-task-style:   var(--tasks-border-style,  var(--default-border-style));
+  --r-task-color:   var(--tasks-border-color,  var(--default-border-color));
+  --r-task-radius:  var(--tasks-border-radius, var(--default-border-radius));
+  --r-task-max-w:   var(--tasks-max-width,     var(--default-max-width));
+  --r-task-pad:     var(--tasks-padding,       var(--default-padding));
+  
+  /* Tables */
+  --r-tbl-width:    var(--table-border-width,  var(--default-border-width));
+  --r-tbl-style:    var(--table-border-style,  var(--default-border-style));
+  --r-tbl-color:    var(--table-border-color,  var(--default-border-color));
+  --r-tbl-radius:   var(--table-border-radius, var(--default-border-radius));
+  --r-tbl-max-w:    var(--table-max-width,     var(--default-max-width));
+  
+  /* Blockquotes */
+  --r-quote-width:  var(--quote-border-width,  var(--default-border-width));
+  --r-quote-style:  var(--quote-border-style,  var(--default-border-style));
+  --r-quote-color:  var(--quote-border-color,  var(--default-border-color));
+  --r-quote-radius: var(--quote-border-radius, var(--default-border-radius));
+  --r-quote-max-w:  var(--quote-max-width,     var(--default-max-width));
+  --r-quote-pad:    var(--quote-padding,       var(--default-padding));
+  
+  /* Callouts */
+  --r-call-width:   var(--callout-border-width,  var(--default-border-width));
+  --r-call-style:   var(--callout-border-style,  var(--default-border-style));
+  --r-call-color:   var(--callout-border-color,  var(--default-border-color));
+  --r-call-radius:  var(--callout-border-radius, var(--default-border-radius));
+  --r-call-max-w:   var(--callout-max-width,     var(--default-max-width));
+  
+  /* Bases */
+  --r-base-width:   var(--bases-border-width,  var(--default-border-width));
+  --r-base-style:   var(--bases-border-style,  var(--default-border-style));
+  --r-base-color:   var(--bases-border-color,  var(--default-border-color));
+  --r-base-radius:  var(--bases-border-radius, var(--default-border-radius));
+  --r-base-max-w:   var(--bases-max-width,     var(--default-max-width));
+  --r-base-pad:     var(--bases-padding,       var(--default-padding));
+  
+  /* Math */
+  --r-math-width:   var(--math-border-width,  var(--default-border-width));
+  --r-math-style:   var(--math-border-style,  var(--default-border-style));
+  --r-math-color:   var(--math-border-color,  var(--default-border-color));
+  --r-math-radius:  var(--math-border-radius, var(--default-border-radius));
+  --r-math-max-w:   var(--math-max-width,     var(--default-max-width));
+  --r-math-pad:     var(--math-padding,       8px 12px);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ███████████████████████████████████████████████████████████████████████████████
+   STYLES - DO NOT EDIT BELOW UNLESS ADDING NEW SELECTORS
+   ███████████████████████████████████████████████████████████████████████████████
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* CODE BLOCKS                                                                  */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.markdown-preview-view pre {
+  border: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-radius: var(--r-code-radius) !important;
+  max-width: var(--r-code-max-w) !important;
+  padding: var(--r-code-pad) !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-x: hidden !important;
+}
+
+.markdown-preview-view pre code {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock {
+  border-left: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-right: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  max-width: var(--r-code-max-w) !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-begin {
+  border-top: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-left: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-right: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-top-left-radius: var(--r-code-radius) !important;
+  border-top-right-radius: var(--r-code-radius) !important;
+  max-width: var(--r-code-max-w) !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-end {
+  border-bottom: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-left: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-right: var(--r-code-width) var(--r-code-style) var(--r-code-color) !important;
+  border-bottom-left-radius: var(--r-code-radius) !important;
+  border-bottom-right-radius: var(--r-code-radius) !important;
+  max-width: var(--r-code-max-w) !important;
+}
+
+/* Inline code */
+.markdown-preview-view code:not(pre code),
+.markdown-source-view .cm-inline-code {
+  border: var(--r-icode-width) var(--r-icode-style) var(--r-icode-color) !important;
+  border-radius: var(--r-icode-radius) !important;
+  padding: var(--r-icode-pad) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* DATAVIEW BLOCKS                                                              */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.dataview.result-group,
+.dataview.dataview-container,
+.block-language-dataview,
+.block-language-dataviewjs {
+  border: var(--r-dv-width) var(--r-dv-style) var(--r-dv-color) !important;
+  border-radius: var(--r-dv-radius) !important;
+  max-width: var(--r-dv-max-w) !important;
+  padding: var(--r-dv-pad) !important;
+  margin: 8px 0 !important;
+  overflow-x: auto !important;
+}
+
+.dataview.list-view-ul {
+  border: var(--r-dv-width) var(--r-dv-style) var(--r-dv-color) !important;
+  border-radius: var(--r-dv-radius) !important;
+  max-width: var(--r-dv-max-w) !important;
+  padding: var(--r-dv-pad) !important;
+}
+
+.dataview.table-view-table {
+  border: var(--r-dv-width) var(--r-dv-style) var(--r-dv-color) !important;
+  border-radius: var(--r-dv-radius) !important;
+  max-width: var(--r-dv-max-w) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.dataview.task-list-basic-ul,
+.dataview.task-list-full-ul {
+  border: var(--r-dv-width) var(--r-dv-style) var(--r-dv-color) !important;
+  border-radius: var(--r-dv-radius) !important;
+  max-width: var(--r-dv-max-w) !important;
+  padding: 10px 15px 10px 30px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* TASKS PLUGIN                                                                 */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.block-language-tasks {
+  border: var(--r-task-width) var(--r-task-style) var(--r-task-color) !important;
+  border-radius: var(--r-task-radius) !important;
+  max-width: var(--r-task-max-w) !important;
+  padding: var(--r-task-pad) !important;
+  margin: 8px 0 !important;
+}
+
+.tasks-list-text,
+.plugin-tasks-query-result {
+  border: var(--r-task-width) var(--r-task-style) var(--r-task-color) !important;
+  border-radius: var(--r-task-radius) !important;
+  max-width: var(--r-task-max-w) !important;
+  padding: var(--r-task-pad) !important;
+  margin: 8px 0 !important;
+}
+
+ul.plugin-tasks-query-result,
+ul.tasks-list-text {
+  padding: 10px 15px 10px 35px !important;
+}
+
+.tasks-group {
+  border: var(--r-task-width) var(--r-task-style) var(--r-task-color) !important;
+  border-radius: var(--r-task-radius) !important;
+  max-width: var(--r-task-max-w) !important;
+  padding: var(--r-task-pad) !important;
+  margin: 8px 0 !important;
+}
+
+.tasks-group-heading {
+  padding-bottom: 5px !important;
+  margin-bottom: 8px !important;
+  border-bottom: 1px solid var(--r-task-color) !important;
+}
+
+.plugin-tasks-query-result .task-list-item,
+.tasks-list-text .task-list-item {
+  padding: 4px 0 !important;
+  border-bottom: 1px solid rgba(107, 107, 107, 0.3) !important;
+}
+
+.plugin-tasks-query-result .task-list-item:last-child,
+.tasks-list-text .task-list-item:last-child {
+  border-bottom: none !important;
+}
+
+.tasks-count {
+  padding-top: 8px !important;
+  margin-top: 8px !important;
+  border-top: 1px solid var(--r-task-color) !important;
+  font-size: 0.85em !important;
+  opacity: 0.7 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* TABLES                                                                       */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.markdown-preview-view table {
+  border: var(--r-tbl-width) var(--r-tbl-style) var(--r-tbl-color) !important;
+  border-radius: var(--r-tbl-radius) !important;
+  max-width: var(--r-tbl-max-w) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+}
+
+.markdown-preview-view table th,
+.markdown-preview-view table td {
+  border: none !important;
+  border-bottom: 1px solid var(--r-tbl-color) !important;
+  border-right: 1px solid var(--r-tbl-color) !important;
+  padding: 8px 12px !important;
+  word-wrap: break-word !important;
+}
+
+.markdown-preview-view table th:last-child,
+.markdown-preview-view table td:last-child {
+  border-right: none !important;
+}
+
+.markdown-preview-view table tr:last-child td {
+  border-bottom: none !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-table-widget {
+  border: var(--r-tbl-width) var(--r-tbl-style) var(--r-tbl-color) !important;
+  border-radius: var(--r-tbl-radius) !important;
+  max-width: var(--r-tbl-max-w) !important;
+  overflow: hidden !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* BLOCKQUOTES                                                                  */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.markdown-preview-view blockquote {
+  border: var(--r-quote-width) var(--r-quote-style) var(--r-quote-color) !important;
+  border-radius: var(--r-quote-radius) !important;
+  max-width: var(--r-quote-max-w) !important;
+  padding: var(--r-quote-pad) !important;
+}
+
+.markdown-source-view.mod-cm6 .HyperMD-quote {
+  border: var(--r-quote-width) var(--r-quote-style) var(--r-quote-color) !important;
+  border-radius: var(--r-quote-radius) !important;
+  max-width: var(--r-quote-max-w) !important;
+  padding-left: 15px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* CALLOUTS                                                                     */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.markdown-preview-view .callout {
+  border: var(--r-call-width) var(--r-call-style) var(--r-call-color) !important;
+  border-radius: var(--r-call-radius) !important;
+  max-width: var(--r-call-max-w) !important;
+  overflow: hidden !important;
+}
+
+.markdown-source-view.mod-cm6 .callout {
+  border: var(--r-call-width) var(--r-call-style) var(--r-call-color) !important;
+  border-radius: var(--r-call-radius) !important;
+  max-width: var(--r-call-max-w) !important;
+  overflow: hidden !important;
+}
+
+.callout .callout {
+  border: var(--r-call-width) var(--r-call-style) var(--r-call-color) !important;
+  border-radius: var(--r-call-radius) !important;
+  margin: 8px 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* BASES                                                                        */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.block-language-bases,
+.bases-container,
+.bases-view {
+  border: var(--r-base-width) var(--r-base-style) var(--r-base-color) !important;
+  border-radius: var(--r-base-radius) !important;
+  max-width: var(--r-base-max-w) !important;
+  padding: var(--r-base-pad) !important;
+  margin: 8px 0 !important;
+  overflow-x: auto !important;
+}
+
+.bases-table,
+.bases-view table {
+  border: var(--r-base-width) var(--r-base-style) var(--r-base-color) !important;
+  border-radius: var(--r-base-radius) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+}
+
+.bases-cards,
+.bases-gallery {
+  border: var(--r-base-width) var(--r-base-style) var(--r-base-color) !important;
+  border-radius: var(--r-base-radius) !important;
+  max-width: var(--r-base-max-w) !important;
+  padding: var(--r-base-pad) !important;
+}
+
+.bases-card {
+  border: var(--r-base-width) var(--r-base-style) var(--r-base-color) !important;
+  border-radius: var(--r-base-radius) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MATH BLOCKS                                                                  */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.markdown-preview-view mjx-container {
+  border: var(--r-math-width) var(--r-math-style) var(--r-math-color) !important;
+  border-radius: var(--r-math-radius) !important;
+  padding: var(--r-math-pad) !important;
+  display: inline-block !important;
+  max-width: var(--r-math-max-w) !important;
+}
+
+.markdown-preview-view mjx-container[display="true"] {
+  display: block !important;
+  padding: 12px 16px !important;
+  margin: 10px 0 !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-math {
+  border: var(--r-math-width) var(--r-math-style) var(--r-math-color) !important;
+  border-radius: var(--r-math-radius) !important;
+  padding: var(--r-math-pad) !important;
+  max-width: var(--r-math-max-w) !important;
+}
+
+.markdown-source-view.mod-cm6 .math.math-block {
+  border: var(--r-math-width) var(--r-math-style) var(--r-math-color) !important;
+  border-radius: var(--r-math-radius) !important;
+  padding: var(--r-math-pad) !important;
+  margin: 8px 0 !important;
+  max-width: var(--r-math-max-w) !important;
+}

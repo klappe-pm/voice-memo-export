@@ -1,0 +1,269 @@
+/* ─── Properties Panel (Frontmatter) ─────────────────────────── */
+/* Minimal theme · Light mode only                                */
+
+.metadata-container {
+  --metadata-label-width: 260px;
+  font-family: "Andale Mono", "PT Mono", monospace;
+  font-size: 8px;
+
+  border: 1.8px solid #999999;
+  border-radius: 18px;
+  padding: 12px;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ─── Properties Heading & Caret ────────────────────────────── */
+/* Keep the heading block to preserve the fold caret, but hide the text */
+.metadata-container .metadata-properties-heading {
+  display: flex !important;
+  justify-content: flex-start;
+  padding: 0 4px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  user-select: none;
+}
+
+.metadata-container .metadata-properties-title {
+  display: none !important;
+}
+
+/* Caret Icon Styling */
+.metadata-container .metadata-properties-heading .collapse-indicator {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: transform 100ms ease-in-out, opacity 100ms linear;
+}
+
+.metadata-container .metadata-properties-heading:hover .collapse-indicator {
+  opacity: 1;
+}
+
+/* When collapsed, Obsidian adds .is-collapsed to .metadata-container */
+.metadata-container.is-collapsed .metadata-content {
+  display: none !important;
+}
+
+/* ─── Hide "Add property" button ───────────────────────────── */
+.metadata-container .metadata-add-button,
+.metadata-container .mod-add-property,
+.metadata-add-property-button {
+  display: none !important;
+}
+
+/* ─── Each row ──────────────────────────────────────────────── */
+.metadata-property {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: filter 100ms linear;
+}
+
+.metadata-property:focus,
+.metadata-property:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.metadata-property:last-child {
+  border-bottom: 1px !important;
+}
+
+/* ─── Property key — rounded left, open right ───────────────── */
+.metadata-property-key {
+  width: var(--metadata-label-width) !important;
+  min-width: var(--metadata-label-width) !important;
+  max-width: var(--metadata-label-width) !important;
+  font-family: "Andale Mono", "Courier New", monospace;
+  font-size: 10px;
+  font-weight: 900;
+  background-color: #EDF5FD;
+  border: 1.5px solid #bfd6ed !important;
+  border-right: 1.2px solid #bfd6ed !important;
+  border-radius: 40px 0 0 40px !important;
+  padding: 1.2px 10px !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 20ms linear;
+}
+
+.metadata-property-key:focus,
+.metadata-property-key:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ─── Property value — open left, rounded right ─────────────── */
+.metadata-property-value {
+  font-family: "Andale Mono", "Courier New", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  background-color: #E0E8D9;
+  border: 1.5px solid #b8d0a8 !important;
+  border-left: 1.2px solid #b8d0a8 !important;
+  border-radius: 0 40px 40px 0 !important;
+  flex: 1;
+  padding: 1.2px 10px !important;
+  margin-left: 0 !important;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  scrollbar-width: none; /* Firefox */
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 20ms linear;
+}
+
+.metadata-property-value:focus,
+.metadata-property-value:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.metadata-property-value::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* ─── Property type icon — no border ───────────────────────── */
+.metadata-property-icon,
+.metadata-property-icon button,
+.metadata-property-icon svg {
+  border: none !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  padding: 1.2px !important;
+  box-sizing: border-box;
+}
+
+.metadata-property-icon:focus,
+.metadata-property-icon:focus-visible,
+.metadata-property-icon button:focus,
+.metadata-property-icon button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ─── Force inputs and text areas to truncate instead of wrap ─ */
+.metadata-property-value .metadata-input,
+.metadata-property-value .metadata-input-text,
+.metadata-property-value [contenteditable="true"],
+.metadata-property-value input {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ─── Allow Tags to wrap normally ───────────────────────────── */
+.metadata-property[data-property-key="tags"] .metadata-property-value .metadata-input,
+.metadata-property[data-property-key="tags"] .metadata-property-value .metadata-input-text,
+.metadata-property[data-property-key="tags"] .metadata-property-value [contenteditable="true"],
+.metadata-property[data-property-key="tags"] .metadata-property-value input {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  width: auto !important;
+  flex: 1;
+  min-width: 30px;
+}
+
+/* ─── Hover state ───────────────────────────────────────────── */
+.metadata-property:hover {
+  filter: brightness(0.94);
+}
+
+/* ─── Focus / active edit state — pill borders activate ─────── */
+.metadata-property:focus-within {
+  filter: brightness(0.94);
+}
+
+.metadata-property:focus-within .metadata-property-key {
+  border-color: #6a9fd4 !important;
+  border-right: none !important;
+}
+
+.metadata-property:focus-within .metadata-property-value {
+  border-color: #6a9fd4 !important;
+  border-left: none !important;
+}
+
+/* ─── Kill all descendant focus outlines ────────────────────── */
+.metadata-property *:focus,
+.metadata-property *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.metadata-property input:focus,
+.metadata-property input:focus-visible,
+.metadata-property [contenteditable]:focus,
+.metadata-property [contenteditable]:focus-visible,
+.metadata-property button:focus,
+.metadata-property button:focus-visible,
+.metadata-property .metadata-property-widget:focus,
+.metadata-property .metadata-property-widget:focus-visible,
+.metadata-property .metadata-input-longtext:focus,
+.metadata-property .metadata-input-longtext:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ─── Tag values ────────────────────────────────────────────── */
+.metadata-property[data-property-key="tags"] .metadata-property-value,
+.metadata-property[data-property-key="tags"] .multi-select-pill-content,
+.metadata-property[data-property-key="tags"] .multi-select-pill span,
+.metadata-property[data-property-key="tags"] a,
+.metadata-property[data-property-key="tags"] * {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  font-family: "Andale Mono", "PT Mono", monospace !important;
+  line-height: 1.4 !important;
+}
+
+.metadata-property[data-property-key="tags"] .metadata-property-value {
+  flex-wrap: wrap;
+  overflow-y: auto;
+  max-height: 48px;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 4px;
+}
+
+.metadata-property[data-property-key="tags"] .multi-select-pill {
+  background-color: #bfd6ed;
+  border: 1.5px solid #b8d0a8 !important;
+  border-radius: 20px !important;
+  padding: 0 6px !important;
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-shrink: 0;
+}

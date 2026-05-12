@@ -1,0 +1,316 @@
+{
+  "main": {
+    "id": "4c0e16b4025b5dd9",
+    "type": "split",
+    "children": [
+      {
+        "id": "915a1e4b55eeea3d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f6e3274786f97313",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Glossary/XLA.md",
+                "mode": "source",
+                "source": true,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "XLA"
+            }
+          },
+          {
+            "id": "ea3f02c7e77a5492",
+            "type": "leaf",
+            "state": {
+              "type": "smart-chat-release-notes-view",
+              "state": {},
+              "icon": "file-text",
+              "title": "Release Notes"
+            }
+          },
+          {
+            "id": "e3e8052f1d45b457",
+            "type": "leaf",
+            "state": {
+              "type": "smart-context-release-notes-view",
+              "state": {},
+              "icon": "file-text",
+              "title": "Release Notes"
+            }
+          },
+          {
+            "id": "27aa3ed0114a356c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ML System Design/Model's interpretability.md",
+                "mode": "source",
+                "source": true,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Model's interpretability"
+            }
+          },
+          {
+            "id": "b7b51784f4279689",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Meta/Templates/Template-Book Notes.md",
+                "mode": "source",
+                "source": true,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Template-Book Notes"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "0830b78fe0e12374",
+    "type": "split",
+    "children": [
+      {
+        "id": "51bd42266b2161fa",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0a60d82883cd6ba2",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "byCreatedTime",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "7175d61e303921ea",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "[[glossary/",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "434d6fee174d8143",
+    "type": "split",
+    "children": [
+      {
+        "id": "f466123349fee2f3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4dc2b172f3c84e45",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "48fdc350bb7db3bd",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "b704a128370965c0",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "5c972677e03c620e",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "1033ae52e88b9466",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "PROMPTS/Create Obsidian.md SKILLS.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Create Obsidian.md SKILLS"
+            }
+          },
+          {
+            "id": "c60a9520da702165",
+            "type": "leaf",
+            "state": {
+              "type": "review-queue-list-view",
+              "state": {},
+              "icon": "SpacedRepIcon",
+              "title": "Notes Review Queue"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 447.5,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "markdown-importer:Open format converter": false,
+      "audio-recorder:Start/stop recording": false,
+      "workspaces:Manage workspace layouts": false,
+      "publish:Publish changes...": false,
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "obsidian-spaced-repetition:Review flashcards": false,
+      "smart-connections:Smart Connections: Open connections view": false,
+      "smart-connections:Smart Lookup: Open lookup view": false,
+      "smart-connections:Smart Connections: Open random connection": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "tasks-map:Open tasks map view": false,
+      "pdf-plus:PDF++: Toggle auto-copy": false,
+      "pdf-plus:PDF++: Toggle auto-focus": false,
+      "pdf-plus:PDF++: Toggle auto-paste": false,
+      "obsidian-book-search-plugin:Create new book note": false
+    }
+  },
+  "active": "b7b51784f4279689",
+  "lastOpenFiles": [
+    "Meta/Templates/Template-Books.md",
+    "Meta/Templates/Template-Glossary Entry.md",
+    "Meta/Templates/Template-Book Notes.md",
+    "Glossary/XLA.md",
+    "ML System Design/Model's interpretability.md",
+    "Glossary/xlm roberta.md",
+    "ML System Design/Inspection API.md",
+    "ML System Design/Choosing the right ML category.md",
+    "ML System Design/Multiclass classification.md",
+    "ML System Design/Classification models.md",
+    "ML System Design/labeled dataset.md",
+    "ML System Design/unsupervised learning algorithms.md",
+    "ML System Design/discrete class label.md",
+    "Glossary/smoothing techniques.md",
+    "Glossary/similarity measures.md",
+    "Glossary/sigmoid.md",
+    "Glossary/shards model parameters.md",
+    "Glossary/structured prediction.md",
+    "Glossary/student model.md",
+    "Glossary/synchronizing gradients for updates.md",
+    "Glossary/superalignment.md",
+    "Glossary/supervised fine tuning.md",
+    "Glossary/supercomputer.md",
+    "Glossary/triplet loss.md",
+    "Glossary/unigram model.md",
+    "Glossary/training.md",
+    "Meta/Templates",
+    "Meta/Attachments",
+    "Meta",
+    "ML System Design",
+    "Tasks/Views/elationships.base",
+    "Tasks/Views/agenda-default.base",
+    "Tasks/Views/calendar-default.base",
+    "Tasks/Views/tasks-default.base",
+    "Tasks/Views/kanban-default.base",
+    "Tasks/Views/mini-calendar-default.base"
+  ]
+}
