@@ -1,5 +1,7 @@
 # repo-scope
 
+## binding
+
 Every session operates inside exactly one repo at a time. That repo is the blast radius for reads, writes, commits, and commands.
 
 ## establishing-scope

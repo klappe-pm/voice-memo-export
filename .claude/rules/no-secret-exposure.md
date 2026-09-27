@@ -1,3 +1,9 @@
 # no-secret-exposure
 
+## binding
+
 Never place a literal token-shaped value (see `token-shaped-values`) in any file, command, log, stdout, generated artifact, or the conversation. Never read `.env`, `settings.local.json`, credential files, or raw `env`/`printenv` output into context. Never pass a secret as a command argument or capture one with `$(op read …)`; both land in shell history and the transcript. To verify a secret resolved, check existence, length, or the first four characters only. If a value is exposed anyway, follow `secret-exposure-response`.
+
+## enforcement
+
+`hooks/env-dump-guard.sh`, registered in `hooks/hooks.json` for every tool and carried into every managed project by `scripts/sync-projects.py`, denies a shell command (from any tool whose input carries one) that prints a process, shell or launchd environment: `env` or `printenv` with no command to run, bare `set`, `export -p`, `declare -p`, `launchctl print`, `getenv` or `export`, `ps` with the environment flag (`ps e`, `ps eww`, `ps -E`; `ps -e` lists every process and passes), `/proc/<pid>/environ`, `railway variables`, `docker inspect` without a narrow `--format` query, and `security find-generic-password` or `find-internet-password` with `-w` or `-g`. `hooks/lib/env-dump-detect.py` finds each form in any segment of a compound command and through wrappers such as `bash -c`, `ssh host`, `railway ssh --`, `sudo` and `env VAR=val`. Ask the narrow question instead: `launchctl list | grep <label>` for whether a job is loaded, `python3 scripts/components.py --services` for service state, `[ -n "${VAR+x}" ]` for whether a variable is set. The bypass `ALLOW_ENV_DUMP=1` is used only with the operator's explicit approval under `guard-bypass-approval`. Reading `.env` or credential files, and printing a secret through an interpreter's own code, remain covered by this rule's text alone.
