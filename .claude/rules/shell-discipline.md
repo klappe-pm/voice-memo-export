@@ -1,14 +1,16 @@
 # shell-discipline
 
-One command per Bash call. Real work goes into committed scripts. Read and write files through the Read, Edit, and Write tools, not shell. These rules exist because each compound call, heredoc, and interpreter invocation is a permission-classifier candidate; the allowlist in `.claude/settings.json` covers only the narrow read-only tools this repo needs (`pdftotext`, `pdfinfo`, `ruff check`, `ruff format --check`, `pytest`, `shasum`, `md5`).
+## binding
+
+One command per Bash call. Real work goes into committed scripts. Read and write files through the Read, Edit, and Write tools, not shell. The prose guard instruments only Write, Edit, and NotebookEdit; a write made through Bash, a heredoc, or an interpreter invocation never passes through it. The attribution guard runs on every tool call, Bash included, but checks attribution only. Keeping file changes on the editor tools is what keeps a change both guarded and reviewable. See `enforcement` below for what a hook actually checks in this rule.
 
 ## one-command-per-call
 
-No `&&`, `;`, or `|` chains except `| head` or `| tail` when output would otherwise flood context. A permission rule approves a call only when every segment matches a rule; one unmatched segment sends the whole call to the classifier.
+No `&&`, `;`, or `|` chains except `| head` or `| tail` when output would otherwise flood context. A compound call hides its individual steps behind one line in the transcript, which is harder for a reviewer to check than the same steps run and read one at a time.
 
 ## paths
 
-Use absolute paths or worktree-relative paths. Never `cd X && ...`. Prefer the tool's own directory flag: `git -C <path>`, `python3 <absolute-or-repo-relative script>`.
+Every command binds its own directory with an absolute path and the tool's directory flag; `command-cwd-scoping` is the rule and is not restated here.
 
 ## file-reads
 
@@ -20,16 +22,16 @@ Change file content with Edit or Write. Never `sed -i`, `printf >>`, or a shell 
 
 ## loops-and-logic
 
-Loops and multi-step logic go into a committed script under the tool's own directory or `scripts/`, with a test, run as one command. An inline `for ... do ... done` cannot match any permission rule.
+Loops and multi-step logic go into a committed script under the tool's own directory or `scripts/`, with a test, run as one command. An inline `for ... do ... done` has no test and no committed source of its own, and its logic disappears from the record the moment the call scrolls past.
 
 ## python
 
-Python runs only as a repository generator (`python3 <tool>/build-*.py`), a test runner (`python3 -m pytest ...`), or a one-off analysis whose output is discarded. A `python3 -` heredoc that writes into the tree is a generator without a contract and is not done here. Interpreters cannot be allow-listed: an allow rule for `python3` would grant arbitrary code execution, so every Python call is judged by the classifier.
+Python runs only as a repository generator (`python3 <tool>/build-*.py`), a test runner (`python3 -m pytest ...`), or a one-off analysis whose output is discarded. A `python3 -` heredoc that writes into the tree is a generator without a contract, a test, or a committed source, and is not done here.
 
 ## pre-commit
 
 Never run `pre-commit run --all-files` in this repository; its whitespace fixers rewrite evidence files. Run `pre-commit run --files` on only the text files a change actually rewrote. Bypassing this restriction requires explicit approval per `guard-bypass-approval`.
 
-## context
+## enforcement
 
-The 2026-09-02 analysis in `docs/backlog/2026-09-02-permission-prompts-root-cause-and-remedy.md` measured 2,056 Bash calls across recent sessions: 81 percent compound, 321 heredocs. Each is a prompt candidate. Keeping calls simple and moving real work into committed generators is what makes the prompts stop.
+No hook enforces any clause in this rule today. The prose guard (`no-em-dash`, `no-hardwrapped-writing`) runs on every Write, Edit, and NotebookEdit call and sees only the content passed to those tools. The attribution guard (`no-agent-attribution`) is registered in `hooks/hooks.json` with no matcher, so it also inspects Bash commands and GitHub calls. Both enforce their own rules, not this one. Nothing here blocks a Bash file read, a heredoc, or a `sed -i` call before it runs. Every clause above is advisory: a convention a session is expected to follow, checked by review rather than by a gate.

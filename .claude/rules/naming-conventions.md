@@ -1,5 +1,7 @@
 # naming-conventions
 
+## binding
+
 Filenames are lowercase kebab-case, never underscores. Directories follow the same convention. Reserved uppercase names (`README.md`, `CLAUDE.md`, `MEMORY.md`, `CODEX.md`, `GEMINI.md`, `AGENTS.md`, `*.pointer`) stay literal.
 
 ## key-documents

@@ -1,5 +1,7 @@
 # command-cwd-scoping
 
+## binding
+
 Every terminal command an agent hands to the user must carry its own working directory. A command printed in a turn, a doc, a PR body, or a runbook is read and run somewhere else: a fresh shell, a new Claude Code or Codex session, a different tab, or a different machine. That reader does not inherit this session's current directory and cannot be told to "run this from the repo root" reliably. An unscoped command is therefore a defect, not a shorthand.
 
 ## the-requirement
@@ -29,7 +31,7 @@ Anchor the path to something durable. Name the real project path (`/Users/<user>
 
 ## scope
 
-This applies to every command an agent emits for a human or another session to run, on every surface: chat output, plans, decision entries, PR and issue bodies, backlog items, and generated runbooks.
+This applies to every command an agent emits for a human or another session to run, on every surface: chat output, plans, decision records, ideas notes, PR and issue bodies, and generated runbooks.
 
 It also applies to commands the agent runs through its own tools, with one adjustment: prefer the directory flag (`git -C`, `make -C`, `--prefix`) over `cd`. Changing directory to reach a target can defeat path and scope guards, which `guard-bypass-approval` forbids, and a `cd` inside a compound command is what trips several of the repo guards in the first place.
 

@@ -1,5 +1,7 @@
 # third-party-identity
 
+## binding
+
 When acting on behalf of a third party (drafting outreach in their name, building their profile, submitting applications for them), identity facts must be confirmed before use.
 
 ## what-requires-confirmation

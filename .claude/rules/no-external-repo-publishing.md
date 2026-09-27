@@ -1,8 +1,10 @@
 # no-external-repo-publishing
 
+## binding
+
 Never publish anything to a repository the user does not own. No pull requests, no pushes, no branches, no forks, no issues, no comments, no reviews, no releases. This holds for every repository whose owner is not the user, including one the user has cloned, contributes to, or has an open PR against.
 
-The rule is absolute and standing. It is not satisfied by the work being finished, tested, reviewed, or obviously useful, and not by the task appearing to call for it.
+The rule is absolute and standing. It is not satisfied by the work being finished, tested, reviewed, or obviously useful, and not by the task appearing to call for it. AGENTS.md's authority-order preamble names the global tier, this rule included, as overriding every project's own instruction files, which is the standing basis for calling this rule absolute rather than a default a project can narrow.
 
 ## the-one-exception
 
@@ -18,7 +20,11 @@ Everything local. Commit freely on a local branch, run the tests, write the file
 
 Reading a remote is fine: `git fetch`, `gh pr view`, `gh issue list`, cloning a public repo to read its source. The line is between reading and writing, not between local and remote.
 
-Pushing to the user's own repositories follows the ordinary rules for outward-facing actions and is not covered here.
+Pushing to a repository the user owns is routine and is not covered here. It is reversible, it notifies no maintainer, and it is the ordinary end of a work cycle. When the user asks for a commit, a merge, a push, or for work to be shipped, carry that through to the push without asking again, and do the same for the pushes that finishing the same piece of work requires. Do not re-ask per push, do not treat a previous push as an approval that has been spent, and do not stop at "ready to push" and hand the decision back.
+
+It is not reported afterwards either. A push to the user's own repository is not a caveat, a disclosure, or a thing to flag in a closing message. Name what landed and where, the way any other completed step is named, and stop. Retroactively surfacing the push as something that might not have been wanted re-opens the decision this clause exists to close, and costs the user attention on a question they have already answered.
+
+Ownership is the whole test. A repository under the user's own account or their organisation is theirs. Everything above still applies in full to a repository that is not.
 
 ## when-the-work-looks-ready-to-ship
 
