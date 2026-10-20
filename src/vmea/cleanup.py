@@ -223,11 +223,11 @@ def cascade_cleanup_transcript(
 
     for i, model in enumerate(models):
         stage_name = stage_names[i] if i < len(stage_names) else f"stage-{i+1}"
-        
+
         # Report progress: starting stage
         if progress_callback:
             progress_callback(i + 1, total_stages, model, f"starting {stage_name}")
-        
+
         # Adjust system prompt for later stages to emphasize revision
         if i == 0:
             system_prompt = instructions
@@ -260,7 +260,7 @@ Return ONLY the polished transcript text."""
 
         intermediate_results.append(revised)
         current_text = revised
-        
+
         # Report progress: completed stage
         if progress_callback:
             progress_callback(i + 1, total_stages, model, f"completed {stage_name}")
