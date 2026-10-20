@@ -92,6 +92,7 @@ vmea doctor
 | `vmea export --force` | Re-export even if unchanged |
 | `vmea list` | List discovered memos |
 | `vmea doctor` | System health check |
+| `vmea probe` | Find the Voice Memos audio folder and explain what was found (`--json` for scripts, see [find your recordings](docs/guides/find-your-recordings.md)) |
 | `vmea config` | Show current configuration |
 | `vmea shortcut-setup` | Guided setup for the "VMEA Open" shortcut |
 
