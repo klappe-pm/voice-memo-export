@@ -267,12 +267,13 @@ def probe_path(path: Path, env: ProbeEnv | None = None, *, source: str = "known"
 def rank_readable(probes: Iterable[PathProbe], env: ProbeEnv | None = None) -> list[PathProbe]:
     """Return the readable folders, best first.
 
-    Order is most recordings, then newest recording, then path. Two paths that resolve to the
-    same folder count once, so a symlinked alias is not a second candidate.
+    Order is most recordings, then newest recording, then the order the paths were probed in,
+    which is the known path order, so a full tie keeps the old preference. Two paths that
+    resolve to the same folder count once, so a symlinked alias is not a second candidate.
     """
     env = env or ProbeEnv()
     readable = [p for p in probes if p.state is PathState.READABLE]
-    readable.sort(key=lambda p: (-p.memo_count, -(p.newest_mtime or 0.0), str(p.path)))
+    readable.sort(key=lambda p: (-p.memo_count, -(p.newest_mtime or 0.0)))
     distinct: list[PathProbe] = []
     seen: set[Path] = set()
     for item in readable:

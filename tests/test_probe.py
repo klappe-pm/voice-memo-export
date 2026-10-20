@@ -302,7 +302,7 @@ def readable(path: str, count: int, newest: float | None = None) -> PathProbe:
     return PathProbe(Path(path), PathState.READABLE, memo_count=count, newest_mtime=newest)
 
 
-def test_rank_by_count_then_newest_then_path() -> None:
+def test_rank_by_count_then_newest_then_probe_order() -> None:
     probes = [
         readable("/b", 5, 100.0),
         readable("/a", 5, 100.0),
@@ -315,7 +315,9 @@ def test_rank_by_count_then_newest_then_path() -> None:
 
     ranked = rank_readable(probes, make_env(resolve=lambda p: p))
 
-    assert [str(p.path) for p in ranked] == ["/d", "/c", "/a", "/b"]
+    # A full tie keeps the order the paths were probed in, which is the known path order,
+    # so /b (probed first) wins over /a even though /a sorts first by name.
+    assert [str(p.path) for p in ranked] == ["/d", "/c", "/b", "/a"]
 
 
 def test_rank_treats_missing_newest_as_oldest() -> None:
