@@ -150,7 +150,7 @@ def generate_note_content(
         shortcuts_url = f"shortcuts://run-shortcut?name=VMEA%20Open&input=text&text={file_path_encoded}"
 
         parts.append(f"[🎙️ Play in Voice Memos]({shortcuts_url})")
-        parts.append(f"")
+        parts.append("")
         parts.append(f"**Recording:** `{memo_name}`")
     else:
         parts.append(f"![[{audio_filename}]]")

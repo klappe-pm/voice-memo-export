@@ -55,9 +55,9 @@ dev = [
 vmea = "vmea.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/klappe-pm/Apple-Voice-Memo-Export-to-Markdown"
-Repository = "https://github.com/klappe-pm/Apple-Voice-Memo-Export-to-Markdown"
-Issues = "https://github.com/klappe-pm/Apple-Voice-Memo-Export-to-Markdown/issues"
+Homepage = "https://github.com/klappe-pm/voice-memo-export"
+Repository = "https://github.com/klappe-pm/voice-memo-export"
+Issues = "https://github.com/klappe-pm/voice-memo-export/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vmea"]

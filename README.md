@@ -38,9 +38,10 @@ Automatically exports Apple Voice Memos to well-organized markdown files with tr
 ## Installation
 ```bash
 # Install
-git clone https://github.com/klappe-pm/Apple-Voice-Memo-Export-to-Markdown.git
-cd Apple-Voice-Memo-Export-to-Markdown
+git clone https://github.com/klappe-pm/voice-memo-export.git
+cd voice-memo-export
 pip install -e .
+```
 
 ## Optional Dependencies
 ```bash
@@ -92,6 +93,7 @@ vmea doctor
 | `vmea list` | List discovered memos |
 | `vmea doctor` | System health check |
 | `vmea config` | Show current configuration |
+| `vmea shortcut-setup` | Guided setup for the "VMEA Open" shortcut |
 
 ## Watch & Daemon Command Reference
 | Command | Description |
@@ -102,7 +104,7 @@ vmea doctor
 | `vmea daemon status` | Check daemon status |
 | `vmea retry-failed` | Retry previously failed exports |
 
-### Ollama (LLM) Commnd Reference
+### Ollama (LLM) Command Reference
 | Command | Description |
 |---------|-------------|
 | `vmea ollama status` | Check Ollama server status |
