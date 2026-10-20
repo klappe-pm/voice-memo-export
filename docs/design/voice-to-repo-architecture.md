@@ -10,8 +10,8 @@ topics:
 types:
   - design
 date-created: 2026-10-14
-date-revised: 2026-10-14
-status: PROPOSED
+date-revised: 2026-10-20
+status: ACCEPTED
 aliases: []
 tags: []
 models:
@@ -37,7 +37,10 @@ Four decisions are made and are recorded in [the decision record](../adr/2026-10
 - Merging: a pull request auto-merges when its gates are green, and this includes code, not only documents.
 - Approval by voice: saying "approved" in a memo sets the target ADR to accepted, with the memo id and the quoted words stored as evidence.
 - Where it lives: the orchestrator lives in this repository.
-- Unknown project: a memo that cannot be matched to a project goes to a folder the user chooses during setup.
+- Unknown project: a memo that cannot be matched to a project goes to an `inbox` folder that setup creates and the user can move; setup asks where it lives when the tool is installed at the home directory.
+- Transcription: Speakr transcribes memos that have no iOS transcript, through its public API; the engine stays pluggable.
+- Routing model: a local model first, a cloud model only when the local result is below the confidence threshold.
+- Notifications: ntfy to the phone plus a macOS notification, never an automatic Speakr window.
 
 ## pipeline
 
@@ -69,11 +72,11 @@ A recording that is still being written or still syncing must not be read. The s
 
 ### stage-3-transcribe
 
-The iOS transcript is used first, read through `parser.extract_tsrp_atom` and `parser.extract_transcript_from_plist`. When there is none, a pluggable transcription engine runs, with whisper.cpp or mlx-whisper on the Mac's GPU as the default. The transcript is then scanned for credential shaped values before anything is stored or committed.
+The iOS transcript is used first, read through `parser.extract_tsrp_atom` and `parser.extract_transcript_from_plist`. When there is none, the memo is uploaded to Speakr through `POST /api/v1/recordings/upload`, the stage waits on `GET /api/v1/recordings/<id>/status`, and reads the result from `GET /api/v1/recordings/<id>/transcript`. The engine is pluggable: where Speakr is not configured, whisper.cpp or mlx-whisper on the Mac's GPU runs instead. The transcript is then scanned for credential shaped values before anything is stored or committed.
 
 ### stage-4-classify
 
-The classifier works out three things: the project, the document type, and any approval cue. A spoken cue wins over the model's guess. If confidence falls below the configured threshold, the memo goes to the unknown project folder and the user gets a notification.
+The classifier works out three things: the project, the document type, and any approval cue. A spoken cue wins over the model's guess. The local model answers first; only when its confidence falls below the configured threshold is the memo sent to the cloud model. If the cloud answer is still below the threshold, the memo goes to the inbox folder and the user gets a notification.
 
 ### stage-5-write
 
@@ -99,7 +102,7 @@ The stage runs these steps in order.
 
 ### stage-9-notify
 
-The stage sends the pull request link, or the failure reason, to a configured channel: a macOS notification, ntfy or a webhook.
+The stage sends the pull request link, or the failure reason, to the phone through ntfy and as a macOS notification on the Mac, plus the Speakr link when the memo was transcribed there. A webhook channel can be added in config.
 
 ## naming-and-links
 
@@ -138,13 +141,13 @@ Each layer is a pure function with fixture tests, including a fake blocked direc
 
 1. Source folder: found by the automatic probe above, including the Full Disk Access fix and the live sync test, with an override available.
 2. Full Disk Access for the interpreter that launchd runs. This is checked separately from step 1, because the background agent is a different process from the terminal.
-3. The unknown project folder. It is required and has no default.
+3. The inbox folder for unrouted memos. Setup creates `inbox` in the install location when the tool is installed inside a project, and asks where to put it when it is installed at the home directory.
 4. The projects: add each repository path, its aliases and its profile.
-5. The transcription engine.
-6. The LLM used for classification.
-7. The notification channel.
+5. The transcription engine: Speakr by default, with its URL and API token read from the environment, or a local engine.
+6. The models used for classification: the local model and the cloud fallback with its threshold.
+7. The notification channels: the ntfy topic and the macOS notification toggle.
 8. The merge policy.
-9. Speakr, which is optional.
+9. Speakr: check the server answers and the token works, and sync the instruction tags.
 10. Keeping the Mac awake: show the `pmset -c sleep 0` guidance and test it.
 11. A dry run against one memo.
 
@@ -169,14 +172,14 @@ So vmea keeps the layered instructions as the original. When the Speakr connecto
 
 ## speakr-connector
 
-Speakr is an optional connector, so the tool stays standalone without it. Speakr is licensed under the AGPL, and its watched folder deletes source files, so vmea never points that folder at the Voice Memos library.
+Speakr is the default transcription engine, reached only through its API, and the tool still runs without it on a local engine. Speakr is licensed under the AGPL, and its watched folder deletes source files, so vmea never points that folder at the Voice Memos library.
 
 - `vmea speakr up` runs `docker compose up` and opens the browser and a log terminal whenever the user asks.
 - Each memo is uploaded through `POST /api/v1/recordings/upload` with a title, `meeting_date`, the iOS transcript as `notes`, `tag_ids` taken from the project, and the memo id sent both as an entry in `external_refs` and as the `idempotency_key`.
 - The phone notification carries the link to that recording in Speakr.
 - The config flag `speakr.open_on_ingest` gives the literal open on every memo behaviour to anyone who wants it. It is off by default, because opening a terminal and a browser for every memo on an unattended Mac only piles up windows.
 
-Speakr re-transcribes on CPU inside Docker, so its transcript is a second copy and not the main one.
+When a memo already has an iOS transcript, vmea still uploads it to Speakr for the library and search, but the iOS transcript stays the main one and Speakr's is a second copy. Speakr in Docker on a Mac transcribes on the CPU unless it points at a GPU WhisperX service or a cloud model, so transcription time on the always on Mac is a number increment 2 measures.
 
 ## machine-agnostic-design
 
@@ -203,9 +206,9 @@ Increment 1 is this design, delivered as three documents in one docs only pull r
 Each increment after it is its own pull request with a dry run mode, and none starts before the previous one merges.
 
 1. Make the foundation green: the Python 3.11 crash, ruff and mypy, the missing `vmea shortcut-setup` command, the README, and launchd `bootstrap` with escaped values in place of the deprecated `launchctl load` used by `cli.daemon_install`.
-2. Capture daemon: the automatic folder probe with the Full Disk Access fix flow, built first because it is the hardest step for non technical users; the setup wizard, including the unknown folder; config schema v2; a launchd watch on the source folder; settle and placeholder handling; a pluggable transcription engine; and tests for the sync timing.
+2. Capture daemon: the automatic folder probe with the Full Disk Access fix flow, built first because it is the hardest step for non technical users; the setup wizard, including the unknown folder; config schema v2; a launchd watch on the source folder; settle and placeholder handling; a pluggable transcription engine with the Speakr engine (upload, status, transcript) as the default; and tests for the sync timing.
 3. Router: the project registry, the classifier, the unknown folder and notifications.
 4. Writer and type processes: the `yyyy-MM-dd-HH-mm-{project}-{summary}` naming with tests for the seven word limit, collisions and time zones; project profiles, templates, the approval cue, and the layered custom instructions with `vmea instructions show`.
 5. Ship: worktree, pull request, gates, auto merge, cleanup and handoff.
 6. Register and plan: the graph and registry update, and work items through the project's own commands.
-7. Speakr connector: `vmea speakr up`, the upload, the deep link, and copying each project's and type's instructions into Speakr tags.
+7. Speakr extras: `vmea speakr up`, the deep link in notifications, and copying each project's and type's instructions into Speakr tags. The upload and transcript path itself lands in increment 2.
