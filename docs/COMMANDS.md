@@ -53,11 +53,30 @@ vmea doctor
 
 Checks:
 - Config file exists and is valid
-- Voice Memos folder is accessible
+- Voice Memos folder is accessible, with the state of every known location (readable, empty, blocked or missing) and the folder it would use
 - Output folder exists
 - Python version is compatible
 - Ollama is running (if LLM enabled)
 - Selected model is available
+
+### `vmea probe`
+
+Find the Voice Memos audio folder and explain what was found in plain words. See [find your recordings](guides/find-your-recordings.md).
+
+```bash
+vmea probe                  # Check known folders, then Spotlight if none is readable
+vmea probe --json           # Print the result as JSON
+vmea probe --stale-days 14  # Warn when the newest recording is older than 14 days
+vmea probe --no-spotlight   # Skip the Spotlight search
+```
+
+| Flag | Description |
+|------|-------------|
+| `--json` | Print the full result as JSON |
+| `--stale-days <n>` | Warn, with iCloud steps, when the newest recording is older than this many days (default 7) |
+| `--spotlight/--no-spotlight` | Search with Spotlight when no known folder is readable (default on) |
+
+Exits with status 1 when no readable folder was found. When a folder is blocked, the output gives the Full Disk Access link and the interpreter to add.
 
 ### `vmea config`
 

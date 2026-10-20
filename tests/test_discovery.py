@@ -1,8 +1,90 @@
 """Tests for VMEA discovery module."""
 
+import os
 from pathlib import Path
+from typing import Any
 
-from vmea.discovery import MemoPair, discover_memos, find_source_path
+import pytest
+
+from vmea import discovery, probe
+from vmea.discovery import MemoPair, diagnose_paths, discover_memos, find_source_path
+
+
+@pytest.fixture
+def known_paths(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path]:
+    """Point the known Voice Memos paths at two fixture folders."""
+    paths = (tmp_path / "first", tmp_path / "second")
+    monkeypatch.setattr(discovery, "VOICE_MEMOS_PATHS", paths)
+    return paths
+
+
+def fill(folder: Path, count: int) -> None:
+    folder.mkdir(parents=True, exist_ok=True)
+    for i in range(count):
+        (folder / f"memo-{i}.m4a").write_bytes(b"audio")
+
+
+def block(monkeypatch: pytest.MonkeyPatch, blocked: Path) -> None:
+    real = os.scandir
+
+    def fake(path: Any) -> Any:
+        if Path(path) == blocked:
+            raise PermissionError(1, "Operation not permitted")
+        return real(path)
+
+    monkeypatch.setattr(probe.os, "scandir", fake)
+
+
+def test_find_source_path_prefers_the_folder_with_most_recordings(
+    known_paths: tuple[Path, Path],
+) -> None:
+    first, second = known_paths
+    fill(first, 1)
+    fill(second, 4)
+
+    assert find_source_path() == second
+
+
+def test_find_source_path_skips_a_blocked_folder_for_a_readable_one(
+    known_paths: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    first, second = known_paths
+    fill(first, 9)
+    fill(second, 1)
+    block(monkeypatch, first)
+
+    assert find_source_path() == second
+
+
+def test_find_source_path_falls_back_to_a_blocked_folder_that_exists(
+    known_paths: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    first, _second = known_paths
+    fill(first, 2)
+    block(monkeypatch, first)
+
+    assert find_source_path() == first
+
+
+def test_find_source_path_falls_back_to_the_first_existing_empty_folder(
+    known_paths: tuple[Path, Path],
+) -> None:
+    _first, second = known_paths
+    second.mkdir()
+
+    assert find_source_path() == second
+
+
+def test_find_source_path_none_when_nothing_exists(known_paths: tuple[Path, Path]) -> None:
+    assert known_paths
+    assert find_source_path() is None
+
+
+def test_diagnose_paths_reports_existence_and_count(known_paths: tuple[Path, Path]) -> None:
+    first, second = known_paths
+    fill(first, 3)
+
+    assert diagnose_paths() == [(first, True, 3), (second, False, 0)]
 
 
 def test_find_source_path_with_override(temp_dir: Path) -> None:

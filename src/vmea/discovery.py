@@ -37,6 +37,11 @@ class MemoPair:
 def find_source_path(override: Path | None = None) -> Path | None:
     """Find the Voice Memos source directory.
 
+    Without an override, every known path is probed and the readable folder with the most
+    recordings wins. If none is readable, the first path that exists is returned as before, so
+    callers can still report a blocked or empty folder. Spotlight is not consulted here; use
+    `vmea.probe.run_probe` for that.
+
     Args:
         override: Optional user-specified path.
 
@@ -49,10 +54,17 @@ def find_source_path(override: Path | None = None) -> Path | None:
             return expanded
         return None
 
-    for path in VOICE_MEMOS_PATHS:
-        expanded = path.expanduser()
-        if expanded.exists():
-            return expanded
+    # Imported here because vmea.probe reads VOICE_MEMOS_PATHS from this module.
+    from vmea import probe
+
+    env = probe.ProbeEnv()
+    probes = [probe.probe_path(path, env) for path in VOICE_MEMOS_PATHS]
+    ranked = probe.rank_readable(probes, env)
+    if ranked:
+        return ranked[0].path
+    for item in probes:
+        if item.state is not probe.PathState.MISSING:
+            return item.path
 
     return None
 
@@ -86,17 +98,18 @@ def discover_memos(source_path: Path) -> Iterator[MemoPair]:
 def diagnose_paths() -> list[tuple[Path, bool, int]]:
     """Check all known Voice Memos paths and report status.
 
+    Kept for compatibility. `vmea.probe.run_probe` reports the richer four-state result.
+
     Returns:
         List of (path, exists, memo_count) tuples.
     """
+    from vmea import probe
+
+    env = probe.ProbeEnv()
     results = []
     for path in VOICE_MEMOS_PATHS:
-        expanded = path.expanduser()
-        exists = expanded.exists()
-        memo_count = 0
-        if exists:
-            memo_count = len(list(expanded.glob("*.m4a")))
-        results.append((expanded, exists, memo_count))
+        item = probe.probe_path(path, env)
+        results.append((item.path, item.state is not probe.PathState.MISSING, item.memo_count))
     return results
 
 
