@@ -9,10 +9,12 @@ topics:
 types:
   - adr
 date-created: 2026-10-14
-date-revised: 2026-10-14
-status: PROPOSED
+date-revised: 2026-10-20
+status: ACCEPTED
 aliases: []
 tags: []
+approved-at: 2026-10-20
+approved-by: Kevin Lappe
 models:
   - claude-opus-5-5
   - claude-sonnet-5-5
@@ -36,11 +38,15 @@ Delivery is incremental. This record and its two companion documents are the fir
 1. Pull requests created by the pipeline auto-merge when the target project's declared gates pass, including pull requests that change code. A project that declares no gates never auto-merges.
 2. Saying "approved" in a memo sets a generated ADR to accepted. The record then carries approved-by set to the owner, with the memo id and the quoted words as evidence. This counts as the owner's ruling for that one record only and authorizes nothing else.
 3. The orchestrator lives in the voice-memo-export repository. It calls each target repository's own skills and commands through a pluggable headless agent runner, so a project keeps its own templates, numbering and regenerate steps.
-4. A memo that cannot be routed to a project with enough confidence goes to a folder the user chooses during setup. Nothing is committed anywhere until the user names a project for that memo.
-5. Speakr is an optional connector reached only through its public API. It is never forked, because it is AGPL licensed, releases often, and its watched folder deletes source files.
+4. A memo that cannot be routed to a project with enough confidence goes to an inbox folder. The folder is a config option: setup creates a default `inbox` folder and asks where it should live, using the install location when the tool is installed inside a project and prompting the user when it is installed at the home directory. Nothing is committed anywhere until the user names a project for that memo.
+5. Speakr is reached only through its public API and is never forked, because it is AGPL licensed, releases often, and its watched folder deletes source files. Speakr is the default transcription engine for memos without an iOS transcript; the engine stays pluggable so the tool still runs where Speakr is not installed.
 6. vmea is the source of truth for layered custom instructions (global, project, document type, and spoken in the memo). It syncs them into Speakr tags when the connector is on.
 7. Notes are named `yyyy-MM-dd-HH-mm-{project}-{summary}`, where the summary is at most seven words and the time is when the memo was recorded, in local time. Originals in the Voice Memos library are never renamed or moved.
 8. Delivery is incremental, one pull request per increment. Parallel subagents on a cheaper model do the build work, and a coordinating session checks their output and is the only one that touches git.
+9. Routing and summaries use a local model first and fall back to a cloud model only when the local result is below the confidence threshold.
+10. Notifications go to the phone through ntfy, with a macOS notification on the Mac as well. Each carries the pull request link or the failure reason, and the Speakr link when the memo was transcribed there. Speakr is never opened automatically per memo.
+
+The owner accepted this record on 2026-10-20, including decisions 4, 5, 9 and 10 as answered in the launch checklist.
 
 ## consequences
 
