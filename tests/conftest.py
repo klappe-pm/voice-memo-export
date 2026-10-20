@@ -6,6 +6,14 @@ from pathlib import Path
 
 import pytest
 
+from vmea import probe
+
+
+@pytest.fixture(autouse=True)
+def no_spotlight(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep tests off the real Spotlight index, so they behave the same on a Mac and on Linux."""
+    monkeypatch.setattr(probe, "locate_mdfind", lambda: None)
+
 
 @pytest.fixture
 def temp_dir() -> Iterator[Path]:

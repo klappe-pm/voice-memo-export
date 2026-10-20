@@ -1,5 +1,6 @@
 """VMEA CLI – Command-line interface for Voice Memo Export Automation."""
 
+import json
 import os
 import plistlib
 import shutil
@@ -11,6 +12,7 @@ from typing import Annotated, Any
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from vmea import __version__
@@ -23,7 +25,7 @@ from vmea.cleanup import (
     generate_summary,
 )
 from vmea.config import AudioExportMode, VMEAConfig, get_config_path, load_config
-from vmea.discovery import diagnose_paths, discover_memos, find_source_path
+from vmea.discovery import VOICE_MEMOS_PATHS, discover_memos, find_source_path
 from vmea.ollama import (
     is_ollama_running,
     list_models,
@@ -32,6 +34,15 @@ from vmea.ollama import (
     start_ollama,
 )
 from vmea.parser import parse_memo
+from vmea.probe import (
+    DEFAULT_STALE_DAYS,
+    PathProbe,
+    PathState,
+    ProbeReport,
+    SpotlightStatus,
+    probe_path,
+    run_probe,
+)
 from vmea.state import StateStore, compute_source_hash, record_export, should_export
 from vmea.writer import format_duration, write_note
 
@@ -1047,6 +1058,112 @@ def watch() -> None:
     observer.join()
 
 
+PROBE_STATE_STYLES = {
+    PathState.READABLE: "green",
+    PathState.BLOCKED: "red",
+    PathState.EMPTY: "yellow",
+    PathState.MISSING: "dim",
+}
+
+
+def describe_probe(item: PathProbe) -> str:
+    """Return the short note printed after a folder in the probe listing."""
+    if item.state is PathState.READABLE:
+        count = f"{item.memo_count}+" if item.truncated else str(item.memo_count)
+        newest = f", newest {item.newest_text}" if item.newest_text else ""
+        return f"({count} recordings{newest})"
+    if item.detail and item.state is PathState.BLOCKED:
+        return f"({item.detail})"
+    return ""
+
+
+def print_probe_report(report: ProbeReport, *, steps: bool = False) -> None:
+    """Print the per-path states, the chosen folder and any fix the user needs.
+
+    With `steps` the Full Disk Access and iCloud steps are written out in full. Without it they
+    are summarised in one line each.
+    """
+    console.print("\n[bold]Voice Memos folders checked:[/bold]")
+    for item in (*report.known, *report.found):
+        style = PROBE_STATE_STYLES[item.state]
+        note = describe_probe(item)
+        console.print(
+            f"  [{style}]{item.state.value:<8}[/{style}] {escape(str(item.path))} {note}".rstrip(),
+            soft_wrap=True,
+        )
+    spotlight = report.spotlight
+    if spotlight.status is SpotlightStatus.OK:
+        console.print(f"  Spotlight suggested {len(spotlight.folders)} other folder(s)")
+    elif spotlight.status is not SpotlightStatus.SKIPPED:
+        console.print(f"  [dim]Spotlight search {spotlight.status.value}: {spotlight.detail}[/dim]")
+
+    if report.chosen:
+        console.print(
+            f"\n[green]✓[/green] {report.summary}\n  Using: {escape(str(report.chosen.path))}",
+            soft_wrap=True,
+        )
+    else:
+        console.print(f"\n[red]✗[/red] {report.summary}")
+    if report.ambiguity:
+        console.print(f"[yellow]⚠[/yellow] {escape(report.ambiguity)}", soft_wrap=True)
+
+    if report.blocked:
+        help_ = report.full_disk_access
+        console.print("\n[bold yellow]Full Disk Access is needed[/bold yellow]")
+        console.print(f"  Settings link: {help_.url}", soft_wrap=True)
+        console.print(f"  Add this interpreter: {escape(help_.interpreter)}", soft_wrap=True)
+        if steps:
+            for number, text in enumerate(help_.steps, 1):
+                console.print(f"  {number}. {escape(text)}", soft_wrap=True)
+        console.print(f"  [dim]{help_.launchd_note}[/dim]", soft_wrap=True)
+
+    freshness = report.freshness
+    if freshness is not None and freshness.stale:
+        console.print(f"\n[yellow]⚠[/yellow] {freshness.message}", soft_wrap=True)
+        for number, text in enumerate(freshness.steps, 1):
+            console.print(f"  {number}. {text}", soft_wrap=True)
+
+
+@app.command()
+def probe(
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Print the result as JSON"),
+    ] = False,
+    stale_days: Annotated[
+        int,
+        typer.Option(
+            "--stale-days",
+            min=1,
+            help="Warn when the newest recording is older than this many days",
+        ),
+    ] = DEFAULT_STALE_DAYS,
+    spotlight: Annotated[
+        bool,
+        typer.Option("--spotlight/--no-spotlight", help="Search with Spotlight if nothing is readable"),
+    ] = True,
+) -> None:
+    """Find the Voice Memos audio folder and explain what was found.
+
+    Exits with status 1 when no readable folder was found.
+    """
+    config_path = get_config_path()
+    config = load_config() if config_path.exists() else None
+    override = config.source_path_override if config else None
+    report = run_probe(
+        [override, *VOICE_MEMOS_PATHS] if override else None,
+        spotlight=spotlight,
+        stale_days=stale_days,
+    )
+    if json_output:
+        typer.echo(json.dumps(report.to_dict(), indent=2))
+    else:
+        console.print("[bold blue]VMEA Probe[/bold blue]")
+        print_probe_report(report, steps=True)
+    if report.chosen is None:
+        raise typer.Exit(1)
+
+
 @app.command()
 def doctor() -> None:
     """Check system health and configuration."""
@@ -1069,23 +1186,25 @@ def doctor() -> None:
         config = None
 
     # Check source path
-    source_path = find_source_path(config.source_path_override if config else None)
+    override = config.source_path_override if config else None
+    report = run_probe([override, *VOICE_MEMOS_PATHS] if override else None)
+    source_path = find_source_path(override)
     if source_path:
-        console.print(f"[green]✓[/green] Voice Memos folder: {source_path}")
-        memo_count = len(list(source_path.glob("*.m4a")))
-        console.print(f"  Found {memo_count} memo(s)")
+        console.print(f"[green]✓[/green] Voice Memos folder: {escape(str(source_path))}")
+        own = probe_path(source_path)
+        if own.state is PathState.BLOCKED:
+            console.print("[red]✗[/red] macOS will not let this program read that folder")
+            issues += 1
+        else:
+            console.print(f"  Found {own.memo_count} memo(s)")
     else:
         console.print("[red]✗[/red] Voice Memos folder not found")
-        console.print("  [bold]Paths checked:[/bold]")
-        for path, exists, count in diagnose_paths():
-            status = f"[green]exists[/green] ({count} memos)" if exists else "[dim]not found[/dim]"
-            console.print(f"    {path}")
-            console.print(f"      {status}")
         console.print("\n  [bold yellow]To fix:[/bold yellow]")
         console.print("  1. Open the Voice Memos app on your Mac to trigger iCloud sync")
         console.print("  2. Wait for sync to complete (check Voice Memos app for recordings)")
         console.print("  3. Grant Full Disk Access in System Settings > Privacy & Security")
         issues += 1
+    print_probe_report(report)
 
     # Check output folder
     if config:
