@@ -1,12 +1,27 @@
 """Tests for VMEA parser module."""
 
 from datetime import datetime
+from pathlib import Path
 
 from vmea.parser import (
     extract_transcript_from_plist,
     generate_title_from_date,
     parse_date_from_filename,
+    parse_memo,
 )
+
+
+class TestParseMemoCreatedFallback:
+    """Tests for the file system date fallback in parse_memo."""
+
+    def test_created_falls_back_to_mtime_without_birthtime(self, tmp_path: Path) -> None:
+        # Linux has no st_birthtime, so this exercises the mtime fallback there.
+        audio = tmp_path / "not-a-dated-name.m4a"
+        audio.write_bytes(b"")
+
+        metadata = parse_memo(audio, None, "not-a-dated-name")
+
+        assert metadata.created is not None
 
 
 class TestExtractTranscriptFromPlist:

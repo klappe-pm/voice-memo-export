@@ -347,9 +347,9 @@ def parse_memo(
     if not metadata.created:
         try:
             stat = audio_path.stat()
-            metadata.created = datetime.fromtimestamp(
-                stat.st_birthtime, tz=UTC
-            ).replace(tzinfo=None)
+            # st_birthtime exists on macOS only; fall back to mtime elsewhere.
+            birthtime = getattr(stat, "st_birthtime", stat.st_mtime)
+            metadata.created = datetime.fromtimestamp(birthtime, tz=UTC).replace(tzinfo=None)
         except (OSError, AttributeError):
             pass
 

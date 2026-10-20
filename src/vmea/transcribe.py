@@ -43,7 +43,7 @@ def is_whisper_available() -> bool:
         True if whisper is importable.
     """
     try:
-        import whisper  # type: ignore[import-untyped]  # noqa: F401
+        import whisper  # type: ignore[import-not-found,import-untyped,unused-ignore]  # noqa: F401
 
         return True
     except ImportError:
