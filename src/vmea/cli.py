@@ -1,6 +1,7 @@
 """VMEA CLI – Command-line interface for Voice Memo Export Automation."""
 
 import os
+import plistlib
 import shutil
 import subprocess
 import sys
@@ -21,7 +22,7 @@ from vmea.cleanup import (
     generate_key_takeaways,
     generate_summary,
 )
-from vmea.config import VMEAConfig, get_config_path, load_config
+from vmea.config import AudioExportMode, VMEAConfig, get_config_path, load_config
 from vmea.discovery import diagnose_paths, discover_memos, find_source_path
 from vmea.ollama import (
     is_ollama_running,
@@ -355,10 +356,33 @@ def main(
 
 def setup_vmea_shortcut() -> bool:
     """Check if VMEA Open shortcut exists and offer to create it.
-    
+
     The shortcut opens audio files in Voice Memos app.
     """
-    # Check if shortcut already exists
+    if shortcut_installed():
+        console.print("[green]\u2713[/green] VMEA Open shortcut is installed")
+        return True
+
+    console.print("[yellow]\u26a0[/yellow] VMEA Open shortcut not found.")
+    console.print("  This shortcut enables clicking links to open recordings in Voice Memos.")
+
+    if typer.confirm("Create the VMEA Open shortcut now?", default=True):
+        print_shortcut_steps()
+        console.print("\n  Run [cyan]vmea shortcut-setup[/cyan] again to verify it afterwards")
+        return False
+
+    console.print(
+        "[dim]Skipping shortcut setup. Links will open Voice Memos app "
+        "but not the specific recording.[/dim]"
+    )
+    return False
+
+
+SHORTCUT_NAME = "VMEA Open"
+
+
+def shortcut_installed() -> bool:
+    """Return True when `shortcuts list` reports the VMEA Open shortcut (macOS only)."""
     try:
         result = subprocess.run(
             ["shortcuts", "list"],
@@ -366,52 +390,55 @@ def setup_vmea_shortcut() -> bool:
             text=True,
             timeout=10,
         )
-        if "VMEA Open" in result.stdout:
-            console.print("[green]\u2713[/green] VMEA Open shortcut is installed")
-            return True
-    except Exception:
-        pass
-    
-    console.print("[yellow]\u26a0[/yellow] VMEA Open shortcut not found.")
-    console.print("  This shortcut enables clicking links to open recordings in Voice Memos.")
-    
-    if typer.confirm("Create the VMEA Open shortcut now?", default=True):
-        # Create shortcut using shortcuts CLI
-        # The shortcut runs: open -a VoiceMemos "$input"
-        shortcut_file = Path("/tmp/vmea_open.shortcut")
-        
-        # We'll use AppleScript to create the shortcut since shortcuts CLI can't create from scratch
-        applescript = '''
-        tell application "Shortcuts Events"
-            make new shortcut with properties {name:"VMEA Open"}
-        end tell
-        '''
-        
-        # Actually, the easiest way is to guide the user to create it manually
-        console.print("\n[bold]To create the shortcut manually:[/bold]")
-        console.print("  1. Open the Shortcuts app")
-        console.print("  2. Click + to create a new shortcut")
-        console.print("  3. Name it: [cyan]VMEA Open[/cyan]")
-        console.print("  4. Add action: [cyan]Run Shell Script[/cyan]")
-        console.print("  5. Set shell to: [cyan]/bin/zsh[/cyan]")
-        console.print("  6. Set input to: [cyan]Shortcut Input[/cyan]")
-        console.print("  7. Enter script: [cyan]open -a VoiceMemos \"$1\"[/cyan]")
-        console.print("  8. Save the shortcut")
-        console.print("\n  Or run: [cyan]vmea shortcut-setup[/cyan] for a guided setup")
+    except (OSError, subprocess.SubprocessError):
         return False
-    
-    console.print("[dim]Skipping shortcut setup. Links will open Voice Memos app but not the specific recording.[/dim]")
-    return False
+    return result.returncode == 0 and SHORTCUT_NAME in result.stdout.splitlines()
+
+
+def print_shortcut_steps() -> None:
+    """Print the manual steps that create the VMEA Open shortcut."""
+    console.print("\n[bold]To create the shortcut:[/bold]")
+    console.print("  1. Open the Shortcuts app")
+    console.print("  2. Click + to create a new shortcut")
+    console.print(f"  3. Name it: [cyan]{SHORTCUT_NAME}[/cyan]")
+    console.print("  4. Add action: [cyan]Run Shell Script[/cyan]")
+    console.print("  5. Set shell to: [cyan]/bin/zsh[/cyan]")
+    console.print("  6. Set input to: [cyan]Shortcut Input[/cyan]")
+    console.print('  7. Enter script: [cyan]open -a VoiceMemos "$1"[/cyan]')
+    console.print("  8. Save the shortcut")
+
+
+@app.command("shortcut-setup")
+def shortcut_setup() -> None:
+    """Guided setup for the VMEA Open shortcut that opens recordings in Voice Memos."""
+    console.print(f"[bold]Shortcut setup: {SHORTCUT_NAME}[/bold]")
+    if sys.platform != "darwin":
+        print_shortcut_steps()
+        console.print(
+            "\n[dim]Not on macOS, so the shortcut cannot be checked here. "
+            "Run this command again on your Mac to verify it.[/dim]"
+        )
+        return
+
+    if shortcut_installed():
+        console.print(f"[green]\u2713[/green] {SHORTCUT_NAME} shortcut is installed")
+        return
+
+    print_shortcut_steps()
+    console.print(
+        "\nWhen you have saved it, run [cyan]vmea shortcut-setup[/cyan] again to verify."
+    )
+    raise typer.Exit(1)
 
 
 def check_ffmpeg() -> bool:
     """Check if ffmpeg is installed and offer to install it."""
     if shutil.which("ffmpeg") is not None:
         return True
-    
+
     console.print("[yellow]⚠[/yellow] ffmpeg is not installed.")
     console.print("  Whisper requires ffmpeg to decode audio files.")
-    
+
     # Check if Homebrew is available
     if shutil.which("brew") is not None:
         if typer.confirm("Install ffmpeg using Homebrew?", default=True):
@@ -440,7 +467,7 @@ def check_ffmpeg() -> bool:
         console.print("  macOS:  brew install ffmpeg")
         console.print("  Ubuntu: sudo apt install ffmpeg")
         console.print("  Windows: choco install ffmpeg")
-    
+
     return False
 
 
@@ -536,7 +563,7 @@ def init() -> None:
     # Create config with mandatory cascade
     config = VMEAConfig(
         output_folder=output_folder,
-        audio_export_mode="app-link",
+        audio_export_mode=AudioExportMode.APP_LINK,
         source_path_override=source_override,
         llm_cleanup_enabled=True,  # Always enabled now
         ollama_model=ollama_models[0],  # Primary model for backward compat
@@ -556,11 +583,11 @@ def init() -> None:
         console.print(f"[green]✓[/green] Source folder: {source_override}")
     model_chain = " \u2192 ".join(ollama_models)
     console.print(f"[green]\u2713[/green] Pipeline: Whisper \u2192 {model_chain}")
-    
+
     # Check/create VMEA Open shortcut for Voice Memos integration
     console.print("\n[bold]Setting up Voice Memos integration...[/bold]")
     setup_vmea_shortcut()
-    
+
     console.print("\n[bold]Next steps:[/bold]")
     console.print("  vmea list     \u2013 List discovered voice memos")
     console.print("  vmea export   \u2013 Export all memos")
@@ -626,7 +653,7 @@ def export_memo(
                     metadata.whisper_transcript = transcript_text
                     metadata.transcript = transcript_text  # Use whisper as working transcript for LLM
                     metadata.transcript_source = transcript_source
-                    console.print(f"  [green]✓[/green] Transcribed with Whisper")
+                    console.print("  [green]✓[/green] Transcribed with Whisper")
             except ImportError:
                 console.print(
                     f"  [yellow]warn[/yellow] {memo_pair.memo_id}: "
@@ -644,7 +671,7 @@ def export_memo(
         domains = ""
         sub_domains = ""
         llm_title = ""
-        
+
         # Check if we have a transcript for LLM processing
         if not metadata.transcript:
             console.print(f"  [yellow]warn[/yellow] {memo_pair.memo_id}: No transcript available for LLM processing")
@@ -670,14 +697,14 @@ def export_memo(
                 # Clean up transcript (cascade or single model)
                 if use_cascade:
                     console.print(f"  [bold]Cascade LLM Processing[/bold] ({len(selected_models)} stages)")
-                    
+
                     def cascade_progress(stage: int, total: int, model: str, status: str) -> None:
                         """Display cascade progress."""
                         if "starting" in status:
                             console.print(f"    [{stage}/{total}] [dim]{status}[/dim] with [cyan]{model}[/cyan]...")
                         elif "completed" in status:
                             console.print(f"    [{stage}/{total}] [green]✓[/green] {status}")
-                    
+
                     cascade_result = cascade_cleanup_transcript(
                         transcript=metadata.transcript,
                         models=selected_models,
@@ -735,7 +762,7 @@ def export_memo(
                         host=config.ollama_host,
                         timeout=config.ollama_timeout,
                     )
-                    console.print(f"  [green]✓[/green] Summary generated")
+                    console.print("  [green]✓[/green] Summary generated")
             except Exception as exc:
                 console.print(
                     f"  [red]error[/red] {memo_pair.memo_id}: "
@@ -791,7 +818,7 @@ def _prepare_llm(
     """
     # LLM cleanup is now mandatory - cascade mode always
     saved_models = config.ollama_models if config.ollama_models else [config.ollama_model]
-    
+
     # Ensure we have 3 models for cascade
     while len(saved_models) < 3:
         saved_models.append(saved_models[-1] if saved_models else "llama3.2:3b")
@@ -1430,32 +1457,29 @@ daemon_app = typer.Typer(help="Manage background daemon")
 app.add_typer(daemon_app, name="daemon")
 
 LAUNCHD_PLIST_PATH = Path("~/Library/LaunchAgents/dev.vmea.agent.plist").expanduser()
-LAUNCHD_PLIST_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>dev.vmea.agent</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>{python_path}</string>
-        <string>-m</string>
-        <string>vmea</string>
-        <string>watch</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>{log_path}/vmea-stdout.log</string>
-    <key>StandardErrorPath</key>
-    <string>{log_path}/vmea-stderr.log</string>
-    <key>WorkingDirectory</key>
-    <string>{home}</string>
-</dict>
-</plist>
-'''
+LAUNCHD_LABEL = "dev.vmea.agent"
+
+
+def build_launchd_plist(python_path: str, log_path: Path, home: Path) -> bytes:
+    """Build the launchd plist as XML bytes.
+
+    plistlib escapes every value, so paths containing `&` or `<` stay valid.
+    """
+    plist = {
+        "Label": LAUNCHD_LABEL,
+        "ProgramArguments": [python_path, "-m", "vmea", "watch"],
+        "RunAtLoad": True,
+        "KeepAlive": True,
+        "StandardOutPath": f"{log_path}/vmea-stdout.log",
+        "StandardErrorPath": f"{log_path}/vmea-stderr.log",
+        "WorkingDirectory": str(home),
+    }
+    return plistlib.dumps(plist, fmt=plistlib.FMT_XML)
+
+
+def launchd_domain() -> str:
+    """Return the per-user launchd domain target, `gui/<uid>`."""
+    return f"gui/{os.getuid()}"
 
 
 @daemon_app.command("install")
@@ -1470,17 +1494,16 @@ def daemon_install() -> None:
     log_path.mkdir(parents=True, exist_ok=True)
 
     # Generate plist
-    plist_content = LAUNCHD_PLIST_TEMPLATE.format(
-        python_path=sys.executable,
-        log_path=log_path,
-        home=Path.home(),
-    )
+    plist_content = build_launchd_plist(sys.executable, log_path, Path.home())
 
     LAUNCHD_PLIST_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LAUNCHD_PLIST_PATH.write_text(plist_content)
+    LAUNCHD_PLIST_PATH.write_bytes(plist_content)
 
     # Load the daemon
-    result = subprocess.run(["launchctl", "load", str(LAUNCHD_PLIST_PATH)], capture_output=True)
+    result = subprocess.run(
+        ["launchctl", "bootstrap", launchd_domain(), str(LAUNCHD_PLIST_PATH)],
+        capture_output=True,
+    )
     if result.returncode == 0:
         console.print("[green]✓[/green] Daemon installed and started")
         console.print(f"  Plist: {LAUNCHD_PLIST_PATH}")
@@ -1498,7 +1521,10 @@ def daemon_uninstall() -> None:
         raise typer.Exit(0)
 
     # Unload the daemon
-    subprocess.run(["launchctl", "unload", str(LAUNCHD_PLIST_PATH)], capture_output=True)
+    subprocess.run(
+        ["launchctl", "bootout", launchd_domain(), str(LAUNCHD_PLIST_PATH)],
+        capture_output=True,
+    )
 
     # Remove plist
     LAUNCHD_PLIST_PATH.unlink()
