@@ -554,7 +554,8 @@ def init() -> None:
     console.print("[green]✓[/green] Audio: Links to Voice Memos app (no file copy)")
     if source_override:
         console.print(f"[green]✓[/green] Source folder: {source_override}")
-    console.print(f"[green]\u2713[/green] Pipeline: Whisper \u2192 {' \u2192 '.join(ollama_models)}")
+    model_chain = " \u2192 ".join(ollama_models)
+    console.print(f"[green]\u2713[/green] Pipeline: Whisper \u2192 {model_chain}")
     
     # Check/create VMEA Open shortcut for Voice Memos integration
     console.print("\n[bold]Setting up Voice Memos integration...[/bold]")
