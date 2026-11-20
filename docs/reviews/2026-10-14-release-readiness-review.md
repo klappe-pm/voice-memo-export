@@ -13,12 +13,6 @@ date-revised: 2026-10-20
 status: REVIEW
 aliases: []
 tags: []
-models:
-  - claude-opus-5-5
-  - claude-sonnet-5-5
-providers:
-  - Anthropic
-session-link: https://claude.ai/code/session_01Az7XTvkfwEd482CHWnDd6R
 ---
 
 # 2026-10-14-release-readiness-review

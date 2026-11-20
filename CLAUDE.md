@@ -284,14 +284,6 @@ Never create a file to satisfy a broken wikilink in an Obsidian vault (a directo
 
 Full rule: `.claude/rules/obsidian-vault-writes.md`
 
-### resume-send-format-contract
-
-Tier: project.
-
-A resume draft written for Kevin copies the structure of his own send versions exactly and states every fact he supplied as a fact. The send versions are the canonical extracts under `shared/lappe-profile/extracts/` in the jobs-v2000 repository; a new draft descends from one of them and differs only in wording chosen for the target role.
-
-Full rule: `.claude/rules/resume-send-format-contract.md`
-
 ### third-party-identity
 
 Tier: project.

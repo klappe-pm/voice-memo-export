@@ -15,12 +15,6 @@ aliases: []
 tags: []
 approved-at: 2026-10-20
 approved-by: Kevin Lappe
-models:
-  - claude-opus-5-5
-  - claude-sonnet-5-5
-providers:
-  - Anthropic
-session-link: https://claude.ai/code/session_01Az7XTvkfwEd482CHWnDd6R
 ---
 
 # 2026-10-14-voice-memo-to-repository-pipeline

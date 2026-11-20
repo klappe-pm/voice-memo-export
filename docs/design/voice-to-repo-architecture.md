@@ -14,12 +14,6 @@ date-revised: 2026-10-20
 status: ACCEPTED
 aliases: []
 tags: []
-models:
-  - claude-opus-5-5
-  - claude-sonnet-5-5
-providers:
-  - Anthropic
-session-link: https://claude.ai/code/session_01Az7XTvkfwEd482CHWnDd6R
 ---
 
 # voice-to-repo-architecture

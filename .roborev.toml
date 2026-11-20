@@ -13,5 +13,5 @@ agent = 'codex'
 
 # rules/no-agent-attribution.md: a fix commit carries the operator and nobody
 # else. scripts/validate-source.py refuses this file if a co-author is set.
-fix_commit_author = 'Kevin Lappe <kevin.lappe@gmail.com>'
+fix_commit_author = 'Kevin Lappe <67352070+klappe-pm@users.noreply.github.com>'
 fix_commit_co_authored_by = []
